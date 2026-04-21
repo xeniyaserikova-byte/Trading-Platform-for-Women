@@ -6,9 +6,6 @@ import { PageHeader } from "@/components/page-header";
 import { WavickChat } from "@/components/wavick-chat";
 
 export default function WavickPage() {
-  const params = useSearchParams();
-  const hintedSymbol = params?.get("about") ?? undefined;
-
   return (
     <div>
       <PageHeader
@@ -17,7 +14,7 @@ export default function WavickPage() {
           <>
             Tell me how you
             <br />
-            want to <span className="italic text-salmon">invest.</span>
+            want to <span className="italic text-rose">invest.</span>
           </>
         }
         lede={
@@ -29,7 +26,27 @@ export default function WavickPage() {
         }
       />
 
-      <WavickChat hintedSymbol={hintedSymbol} />
+      {/* useSearchParams() forces a CSR bail-out for this subtree — wrap in
+          Suspense so the rest of the page can still be pre-rendered at build
+          time. Netlify / Vercel / any other target requires this for Next 14+. */}
+      <React.Suspense fallback={<WavickLoading />}>
+        <WavickWithHint />
+      </React.Suspense>
+    </div>
+  );
+}
+
+function WavickWithHint() {
+  const params = useSearchParams();
+  const hintedSymbol = params?.get("about") ?? undefined;
+  return <WavickChat hintedSymbol={hintedSymbol} />;
+}
+
+function WavickLoading() {
+  return (
+    <div className="mx-auto max-w-2xl py-16 text-center">
+      <div className="eyebrow">Summoning Wavick…</div>
+      <p className="mt-2 text-sm text-ink-mute">One moment.</p>
     </div>
   );
 }

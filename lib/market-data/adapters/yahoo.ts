@@ -12,6 +12,19 @@ const execFileP = promisify(execFile);
 const QUOTE_BASE = "https://query1.finance.yahoo.com/v8/finance/chart";
 const SEARCH_BASE = "https://query1.finance.yahoo.com/v1/finance/search";
 
+/**
+ * Detect whether we're running inside a serverless container. Used to
+ * auto-disable the curl subprocess in production: Netlify / Vercel / AWS
+ * Lambda environments don't reliably ship curl and native fetch is faster.
+ */
+function isServerless(): boolean {
+  return (
+    !!process.env.NETLIFY ||
+    !!process.env.VERCEL ||
+    !!process.env.AWS_LAMBDA_FUNCTION_NAME
+  );
+}
+
 const UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 " +
   "(KHTML, like Gecko) Version/17.0 Safari/605.1.15";
@@ -129,10 +142,17 @@ export function createYahooAdapter(
     quoteBase = QUOTE_BASE,
     searchBase = SEARCH_BASE,
     // If the caller injected a fetch mock (tests), always use it. Otherwise
-    // default to curl-subprocess mode unless explicitly opted out via env.
+    // default to curl-subprocess mode locally, but flip to native fetch when
+    // we're running in a serverless container (Netlify / Vercel / Lambda) —
+    // those environments don't ship curl reliably and the subprocess
+    // overhead wastes cold-start time.
     useCurl = opts.fetchImpl
       ? false
-      : process.env.YAHOO_FETCH_MODE !== "fetch",
+      : process.env.YAHOO_FETCH_MODE === "fetch"
+        ? false
+        : process.env.YAHOO_FETCH_MODE === "curl"
+          ? true
+          : !isServerless(),
   } = opts;
 
   const headers = {

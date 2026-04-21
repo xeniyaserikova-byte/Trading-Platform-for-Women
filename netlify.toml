@@ -1,0 +1,27 @@
+# Netlify deploy config for Lipstick & Ledger (Next.js 16 App Router).
+# Netlify's OpenNext-based Next.js runtime is auto-installed; we only need to
+# pin build + Node versions and a couple of env nudges so API routes behave
+# the same way in Lambda as they do on localhost.
+
+[build]
+  command = "next build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Yahoo Finance adapter defaults to `curl` subprocess locally because Node's
+  # TLS signature is sometimes 429'd by Yahoo's edge. Lambda containers don't
+  # reliably ship curl and the subprocess overhead is wasted cold-start time
+  # — force native fetch in production.
+  YAHOO_FETCH_MODE = "fetch"
+  # Silence a noisy OpenNext warning on first deploy — the adapter resolves
+  # caching for us automatically.
+  NETLIFY_NEXT_PLUGIN_SKIP = "false"
+
+# Route Handlers live in app/api/** and are automatically wired to Netlify
+# Serverless Functions by the Next.js adapter — no explicit redirects needed.
+#
+# IMPORTANT: set these two env vars in Netlify UI (Site settings → Env vars)
+# so the deployed site can talk to OpenAI and Alpha Vantage:
+#   OPENAI_API_KEY         = sk-...
+#   ALPHA_VANTAGE_API_KEY  = (optional; app falls back to Yahoo or demo data)
