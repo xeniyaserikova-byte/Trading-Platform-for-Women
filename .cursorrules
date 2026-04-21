@@ -1,0 +1,64 @@
+You are building an AI Trading Simulator web app.
+
+Primary goal:
+- Help users learn trading by paper-trading real market quotes with virtual currency.
+- Users can browse quotes, build a portfolio, execute simulated trades, and request AI opinions on specific trades to understand risk and reasoning.
+
+Core tech stack (must follow):
+- Next.js 15 with App Router + TypeScript.
+- Tailwind CSS + shadcn/ui for UI.
+- Vercel AI SDK with OpenAI provider for AI trade opinions.
+- Data persistence: localStorage on client OR a single JSON file on server. No database.
+
+Authoritative docs (prefer these over memorized APIs):
+- Next.js 15: https://nextjs.org/docs/15/llms.txt
+- shadcn/ui: https://ui.shadcn.com/llms.txt
+- Vercel AI SDK: https://ai-sdk.dev/llms.txt
+
+Security and architecture constraints (non-negotiable):
+1) Never call OpenAI directly from the browser.
+2) Never call market-data providers directly from the browser.
+3) All OpenAI calls must go through Next.js Route Handlers in `app/api/**/route.ts`.
+4) All market-data calls must go through Next.js Route Handlers in `app/api/**/route.ts`.
+5) Keep provider keys in environment variables; never expose secrets in client bundles.
+
+Market-data provider choice and swap strategy:
+- Default provider: Alpha Vantage (stocks + FX, public API key model, simple REST endpoints).
+- Why this choice:
+  - Pros: easy onboarding, broad retail-friendly quote coverage for learning use cases, no paid infra needed to start.
+  - Cons: strict free-tier rate limits, slower refresh cadence, limited depth for professional simulation.
+- Abstraction requirement:
+  - All provider-specific logic must live behind a server-only adapter module (for example `lib/market-data/provider.ts` and `lib/market-data/adapters/*`).
+  - App code must depend on internal normalized quote types, never raw provider response shapes.
+  - Swapping provider (to Polygon, Twelve Data, IEX, crypto exchange APIs, etc.) should only require replacing/adding an adapter and updating one provider selection config.
+
+Data modeling guidance:
+- Define explicit TypeScript models for:
+  - Instrument/Quote
+  - Portfolio Position
+  - Cash Balance
+  - Trade (buy/sell, qty, price, timestamp)
+  - AI Trade Opinion (thesis, risks, confidence, disclaimer)
+- Validate server inputs and normalize all external payloads before use.
+
+AI opinion behavior:
+- AI output is educational, not financial advice.
+- Every AI trade-opinion response should include a clear disclaimer.
+- Opinion prompts should include the specific trade context (symbol, side, qty, quote, current portfolio exposure if available).
+
+Persistence guidance:
+- If client-local: keep portfolio and trade history in localStorage with versioned schema keys.
+- If server-file: use one JSON file with a small repository/service wrapper and safe read/write guards.
+- Keep persistence interface abstract so localStorage and JSON-file backends are swappable.
+
+Code quality and delivery rules:
+- Code must always compile.
+- Favor small, typed, composable modules over large monolith files.
+- Use server/client boundaries correctly (`"use client"` only where needed).
+- Use shadcn/ui primitives and Tailwind utility classes consistently.
+- Add minimal tests for critical logic (trade execution math, PnL calculation, and adapter normalization) when creating or changing that logic.
+
+Implementation preference for this project:
+- Start with stocks + FX quotes via Alpha Vantage.
+- Keep symbol lookup and quote fetching server-side with simple caching/backoff to reduce rate-limit failures.
+- Surface rate-limit or stale-quote states clearly in UI.

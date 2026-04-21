@@ -1,0 +1,250 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Lipstick & Ledger palette: warm blush paper + plum ink + a rose-to-ruby accent gradient */
+    --paper: 18 75% 96%;           /* #fdefe9 — warm cream-blush */
+    --paper-sub: 348 55% 93%;      /* #f7dde4 — pale petal */
+    --paper-deep: 344 48% 88%;     /* #f2cdd6 — section wells */
+    --ink: 338 40% 16%;            /* #3a1e29 — deep plum ink */
+    --ink-soft: 338 22% 30%;
+    --ink-mute: 338 14% 48%;
+    --rule: 344 24% 78%;           /* hairline rose-rule */
+
+    /* Accent ladder — same hue family so the brand reads as one voice */
+    --blush: 348 92% 88%;          /* #fcd2de — intro tier */
+    --rose:  344 92% 72%;          /* #f7869f */
+    --rose-deep: 344 78% 54%;
+    --rose-glow: 344 100% 82%;     /* chart gradient stops */
+    --ruby:  340 80% 48%;          /* #dc2461 — premium tier */
+    --plum:  338 55% 32%;          /* #7f2743 — deep contrast */
+
+    /* Legacy "salmon" aliases, kept so existing components still build */
+    --salmon: var(--rose);
+    --salmon-deep: var(--rose-deep);
+
+    --signal-up: 168 58% 38%;      /* muted sage — still clearly positive */
+    --signal-down: 340 80% 48%;    /* uses ruby so negatives stay in-family */
+
+    /* shadcn tokens, rewritten onto our palette */
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --card: var(--paper);
+    --card-foreground: var(--ink);
+    --popover: var(--paper);
+    --popover-foreground: var(--ink);
+    --primary: var(--ink);
+    --primary-foreground: var(--paper);
+    --secondary: var(--paper-sub);
+    --secondary-foreground: var(--ink);
+    --muted: var(--paper-sub);
+    --muted-foreground: var(--ink-mute);
+    --accent: var(--salmon);
+    --accent-foreground: var(--ink);
+    --destructive: var(--signal-down);
+    --destructive-foreground: var(--paper);
+    --success: var(--signal-up);
+    --success-foreground: var(--paper);
+    --border: var(--rule);
+    --input: var(--rule);
+    --ring: var(--salmon);
+    --radius: 0.125rem; /* 2px — sharp editorial corners */
+  }
+
+  .dark {
+    --paper: 338 30% 8%;
+    --paper-sub: 338 22% 12%;
+    --paper-deep: 338 24% 10%;
+    --ink: 18 75% 96%;
+    --ink-soft: 344 30% 86%;
+    --ink-mute: 344 14% 62%;
+    --rule: 338 14% 22%;
+    --blush: 348 85% 78%;
+    --rose: 344 95% 76%;
+    --rose-deep: 344 82% 62%;
+    --rose-glow: 344 100% 78%;
+    --ruby: 340 85% 62%;
+    --plum: 338 40% 70%;
+    --salmon: var(--rose);
+    --salmon-deep: var(--rose-deep);
+    --signal-up: 168 60% 56%;
+    --signal-down: 344 90% 70%;
+
+    --background: var(--paper);
+    --foreground: var(--ink);
+    --card: var(--paper);
+    --card-foreground: var(--ink);
+    --popover: var(--paper);
+    --popover-foreground: var(--ink);
+    --primary: var(--ink);
+    --primary-foreground: var(--paper);
+    --secondary: var(--paper-sub);
+    --secondary-foreground: var(--ink);
+    --muted: var(--paper-sub);
+    --muted-foreground: var(--ink-mute);
+    --accent: var(--salmon);
+    --accent-foreground: var(--paper);
+    --destructive: var(--signal-down);
+    --destructive-foreground: var(--paper);
+    --success: var(--signal-up);
+    --success-foreground: var(--paper);
+    --border: var(--rule);
+    --input: var(--rule);
+    --ring: var(--salmon);
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html,
+  body {
+    background: hsl(var(--paper));
+    color: hsl(var(--ink));
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Warm paper grain — SVG noise turned low */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.14;
+    mix-blend-mode: multiply;
+    /* Soft rose-blush paper grain */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.22 0 0 0 0 0.08 0 0 0 0 0.14 0 0 0 0.45 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* Extra ambient glow — a subtle rose wash at the top of every page */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(900px 480px at 85% -10%, hsl(var(--blush) / 0.55), transparent 60%),
+      radial-gradient(700px 400px at 5% -20%, hsl(var(--rose) / 0.22), transparent 65%);
+  }
+  .dark body::after {
+    background:
+      radial-gradient(900px 480px at 85% -10%, hsl(var(--plum) / 0.35), transparent 60%),
+      radial-gradient(700px 400px at 5% -20%, hsl(var(--ruby) / 0.18), transparent 65%);
+  }
+
+  .dark body::before {
+    opacity: 0.12;
+    mix-blend-mode: screen;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.4 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  main,
+  header,
+  footer {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display), ui-serif, Georgia, "Times New Roman",
+      serif;
+    font-feature-settings: "ss01", "liga", "dlig";
+  }
+  .font-mono {
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-feature-settings: "tnum", "ss01", "zero";
+  }
+  .num {
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-feature-settings: "tnum", "zero";
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .eyebrow {
+    font-family: var(--font-sans);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: hsl(var(--ink-mute));
+  }
+  .rule {
+    border-bottom: 0.5px solid hsl(var(--rule));
+  }
+  .hairline-y > * + * {
+    border-top: 0.5px solid hsl(var(--rule));
+  }
+  .hairline-x > * + * {
+    border-left: 0.5px solid hsl(var(--rule));
+  }
+  .ticker-move {
+    animation: ticker 50s linear infinite;
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @keyframes reveal-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    animation: reveal-up 0.7s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+  }
+}
+
+::selection {
+  background: hsl(var(--rose));
+  color: hsl(var(--ink));
+}
+
+/* Brand mark — used in nav and footer. Italic ampersand flourish matches the old
+   Paper & Position cadence, but tuned for Lipstick & Ledger. */
+.brand-word {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+  font-feature-settings: "ss01", "liga", "dlig";
+  letter-spacing: -0.01em;
+}
+
+/* Ruby-tinted ring for focused interactives on pricing/upgrade flows */
+.ring-brand {
+  box-shadow: 0 0 0 3px hsl(var(--rose) / 0.28);
+}
+.ring-brand-ruby {
+  box-shadow: 0 0 0 3px hsl(var(--ruby) / 0.32);
+}
+
+/* Card elevation that still reads like paper, not plastic */
+.card-lift {
+  box-shadow:
+    0 1px 0 hsl(var(--ink) / 0.04),
+    0 10px 30px -18px hsl(var(--plum) / 0.35);
+}
+
+@keyframes sparkle-pop {
+  0%   { transform: scale(0.6) rotate(-6deg); opacity: 0; }
+  40%  { transform: scale(1.12) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.sparkle-pop {
+  animation: sparkle-pop 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes halo-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 hsl(var(--rose) / 0.35); }
+  50%      { box-shadow: 0 0 0 14px hsl(var(--rose) / 0); }
+}
+.halo-pulse {
+  animation: halo-pulse 2.4s ease-out infinite;
+}
